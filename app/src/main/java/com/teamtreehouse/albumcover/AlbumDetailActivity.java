@@ -42,6 +42,7 @@ public class AlbumDetailActivity extends Activity {
     private Scene mCollapsedScene;
     private Scene mCurrentScene;
 
+    //onVHClicked(AlbumVH vh)에 의해서 이 액티비티의 onCreate메서드가 호출되는 것 같습니다.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -117,6 +118,15 @@ public class AlbumDetailActivity extends Activity {
         });
 
         TransitionSet expandTransitionSet = new TransitionSet();
+        /*
+        <transitionSet xmlns:android="http://schemas.android.com/apk/res/android"
+                 android:ordering="sequential">
+             <fade/>
+             <changeBounds/>
+         </transitionSet>
+         저번에 트랜지션이 xml로 안된다고 했는데 지금 보니 document에는 이렇게
+         순서를 지정하는 것도 가능할 것으로 나옵니다.
+         */
         expandTransitionSet.setOrdering(TransitionSet.ORDERING_SEQUENTIAL);
         ChangeBounds changeBounds = new ChangeBounds();
         changeBounds.setDuration(200);
@@ -126,6 +136,9 @@ public class AlbumDetailActivity extends Activity {
         fadeLyrics.addTarget(R.id.lyrics);
         fadeLyrics.setDuration(150);
         expandTransitionSet.addTransition(fadeLyrics);
+        //Fade 객체는 처음에는 숨겨진상태로 존재하는 듯 합니다.
+        //위에 적힌바와 같이 expandTransitionSet에 add 된 순서대로 트랜지션이 진행됩니다.
+        //이 장면은 가사가 나타나는 장면입니다.
 
         // Collapsed scene
         mCollapsedScene = Scene.getSceneForLayout(transitionRoot,
@@ -151,9 +164,12 @@ public class AlbumDetailActivity extends Activity {
         ChangeBounds resetBounds = new ChangeBounds();
         resetBounds.setDuration(200);
         collapseTransitionSet.addTransition(resetBounds);
+        //가사가 접히는 장면입니다.
 
         mTransitionManager.setTransition(mExpandedScene, mCollapsedScene, collapseTransitionSet);
         mTransitionManager.setTransition(mCollapsedScene, mExpandedScene, expandTransitionSet);
+        //setupTransition()은 onCreate()단계에서 실행되므로 준비단계입니다.
+        //그러므로 가사가 닫힌상태로 시작시킵니다.
         mCollapsedScene.enter();
     }
 
@@ -168,6 +184,7 @@ public class AlbumDetailActivity extends Activity {
         // reduce image size in memory to avoid memory errors
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = false;
+        //샘플크기를 8분의1로 합니다.
         options.inSampleSize = 8;
         return BitmapFactory.decodeResource(getResources(), albumArtResId, options);
     }
@@ -178,10 +195,11 @@ public class AlbumDetailActivity extends Activity {
         // set panel colors
         int defaultPanelColor = 0xFF808080;
         int defaultFabColor = 0xFFEEEEEE;
+        //뒤쪽에 get메서드가 사진의 전체적으로 어울리는 색상을 골라주는 메서드입니다.
         titlePanel.setBackgroundColor(palette.getDarkVibrantColor(defaultPanelColor));
         trackPanel.setBackgroundColor(palette.getLightMutedColor(defaultPanelColor));
 
-        // set fab colors
+        // 둥근버튼의 색상을 설정합니다.
         int[][] states = new int[][]{
                 new int[]{android.R.attr.state_enabled},
                 new int[]{android.R.attr.state_pressed}
